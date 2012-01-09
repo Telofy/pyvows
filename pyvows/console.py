@@ -40,12 +40,11 @@ class Messages(object):
     xunit_file = 'Filename of the XUnit output (default: %(default)s).'
     no_color = 'Does not colorize the output. (default: %(default)s).'
     verbosity = 'Verbosity. Can be supplied multiple times to increase verbosity (default: -vv)'
-    path = 'Directory to look for vows recursively. If a file is passed, the file will be the target for vows. (default: %(default)r).'
+    path = 'Directory to look for vows recursively. If a file is passed, the file will be the target for vows. (default: ".").'
+    default_path = 'Default for the positional path argument. (default: ".")'
     profile = 'Prints the 10 slowest topics. (default: %(default)s).'
 
 def __get_arguments():
-    current_dir = os.curdir
-
     parser = argparse.ArgumentParser(description='Runs pyVows.')
 
     parser.add_argument('-p', '--pattern', default='*_vows.py', help=Messages.pattern)
@@ -66,8 +65,9 @@ def __get_arguments():
     parser.add_argument('-v', action='append_const', dest='verbosity', const=1, help=Messages.verbosity)
     parser.add_argument('--profile', action='store_true', dest='profile', default=False, help=Messages.profile)
     parser.add_argument('--progress', action='store_true', dest='progress', default=False, help=Messages.progress)
+    parser.add_argument('--path', action='store', dest='default_path', help=Messages.default_path)
 
-    parser.add_argument('path', default=current_dir, nargs='?', help=Messages.path)
+    parser.add_argument('path', nargs='?', help=Messages.path)
 
     arguments = parser.parse_args()
 
@@ -91,7 +91,7 @@ def run(path, pattern, verbosity, progress):
 def main():
     arguments = __get_arguments()
 
-    path = arguments.path
+    path = arguments.path or arguments.default_path
     pattern = arguments.pattern
 
     if path and isfile(path):
