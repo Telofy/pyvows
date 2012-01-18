@@ -43,6 +43,7 @@ class Messages(object):
     path = 'Directory to look for vows recursively. If a file is passed, the file will be the target for vows. (default: ".").'
     default_path = 'Default for the positional path argument. (default: ".")'
     profile = 'Prints the 10 slowest topics. (default: %(default)s).'
+    profile_threshold = 'Number of seconds that the test must take to be considered a slow test. (default: %(default)s).'
 
 def __get_arguments():
     parser = argparse.ArgumentParser(description='Runs pyVows.')
@@ -60,7 +61,13 @@ def __get_arguments():
     xunit_group.add_argument('-x', '--xunit_output', action="store_true", default=False, help=Messages.xunit_output)
     xunit_group.add_argument('-f', '--xunit_file', action="store", default="pyvows.xml", help=Messages.xunit_file)
 
+    profile_group = parser.add_argument_group('profile arguments')
+    profile_group.add_argument('--profile', action='store_true', dest='profile', default=False, help=Messages.profile)
+    profile_group.add_argument('--profile_threshold', default=0.1, type=float, help=Messages.profile_threshold)
+
     parser.add_argument('--no_color', action="store_true", default=False, help=Messages.no_color)
+    parser.add_argument('--progress', action='store_true', dest='progress', default=False, help=Messages.progress)
+
     parser.add_argument('--version', action='version', version='%(prog)s ' + version.to_str())
     parser.add_argument('-v', action='append_const', dest='verbosity', const=1, help=Messages.verbosity)
     parser.add_argument('--profile', action='store_true', dest='profile', default=False, help=Messages.profile)
@@ -146,7 +153,7 @@ def main():
         xunit.write_report(arguments.xunit_file)
 
     if arguments.profile:
-        reporter.print_profile()
+        reporter.print_profile(arguments.profile_threshold)
 
     sys.exit(result.errored_tests)
 
